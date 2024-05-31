@@ -24,11 +24,11 @@ Route::middleware('api')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('logout', [App\Http\Controllers\AuthController::class, 'logout']);
     Route::resource('permissions', App\Http\Controllers\PermissionController::class);
     Route::resource('roles', App\Http\Controllers\RoleController::class);
     Route::get('roles/{role}/add-permissions', [App\Http\Controllers\RoleController::class, 'addPermissionToRole'])->name('roles.add-permissions');
     Route::put('roles/{role}/give-permissions', [App\Http\Controllers\RoleController::class, 'givePermissionToRole'])->name('roles.give-permissions');
     Route::resource('users', App\Http\Controllers\UserController::class);
-    Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);
     Route::get('user', [App\Http\Controllers\AuthController::class, 'user']);
 });

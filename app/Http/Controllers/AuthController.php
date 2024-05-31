@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -50,17 +49,19 @@ class AuthController extends Controller
 
     }
 
-    public function logout(Request $request){
-        //$request->user()->currentAccessToken()->delete();
-        //$user = request()->user();
-        dd($request);
+    public function logout(){
+        Auth::user()->tokens->each(function($token, $key) {
+            $token->delete();
+        });
 
-        return response()->json(['message' => 'Logged out']);
+        return response()->json([
+            'status' => true,
+            'message' => 'logout token'
+        ], 200);
     }
 
     public function user(Request $request){
         return response()->json($request->user());
     }
-
 
 }
