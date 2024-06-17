@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 
@@ -16,25 +17,32 @@ class UserController extends Controller
         return response()->json($users);
     }
 
+    //A store tá meio inútil, vou remover.
     public function store(Request $request){
         $this->authorize('create', User::class);
 
-        $request->validate([
-            'name'     => 'required|string',
-            'email'    => 'required|string|email',
-            'password' => 'required|string',
-            'roles'    => 'required|array'
-        ]);
+        try{
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
+            foreach($request->rolesSelected as $key => $role){
+                $role_list[$key] = $role['name'];
+            }
 
-        $user->syncRoles($request->roles);
+            $user = User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password)
+            ]);
 
-        return response()->json($user, 201);
+            $user->syncRoles($role_list);
+
+        }catch(\Exception $e){
+            Log::error('Error registering user: '.$e->getMessage(), [
+                'exception' => $e
+            ]);
+            return response()->json(['exception' => $e], 201);
+        }
+
+        return response()->json(['message' => 'User registered successfully'], 201);
     }
 
     public function edit(User $user){
